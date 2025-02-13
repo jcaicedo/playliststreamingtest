@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getMoviesByCategory,getTvShowsByCategory } from "../api/tmdb";
-import   './Series.css'
+import   './Home.css'
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w300";
 
