@@ -1,41 +1,54 @@
 import { useEffect, useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import { getMoviesByCategory } from "../api/tmdb";
-import { useNavigate } from "react-router-dom";
+import { getMoviesByCategory,getTvShowsByCategory } from "../api/tmdb";
 import   './Series.css'
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w300";
 
-const Home = () => {
-    const category = "popular"; 
-    const categoryName = "Popular";
+const categories = [
+    { key: "popular", name: "Popular Movies", type: "movie" },
+    { key: "top_rated", name: "Best Rated", type: "movie" },
+    { key: "tv_popular", name: "Popular Series", type: "tv" }
+]
 
-    const [movies, setMovies] = useState([]);
+const Home = () => {
+
+    const [moviesData, setMoviesData] = useState({});
     const [loading, setLoading] = useState(true);
-    const [focusedIndex, setFocusedIndex] = useState(0);
+    const [focusedRowIndex, setFocusedRowIndex] = useState(0);
+    const [focusedColIndex, setFocusedColIndex] = useState(0);
     const movieRefs = useRef({});
-    const carouselRef = useRef(null);
+    const carouselsRef = useRef({});
     const menuOpen = useSelector((state) => state.ui.menuOpen);
-    const navigate = useNavigate();
+
 
     // Get movies on mount
+
     useEffect(() => {
         setLoading(true);
-        getMoviesByCategory(category)
-            .then((data) => {
-                console.log(data);
-                
-                setMovies(data);
-            })
-            .finally(() => setLoading(false));
+        const fetchData = async () => {
+            const data = {}
+            for (let category of categories) {
+                if(category.type === "movie") {
+                    data[category.key] = await getMoviesByCategory(category.key)
+                } else {
+                    data[category.key] = await getTvShowsByCategory("popular")
+                }
+            }
+            setMoviesData(data)
+            setLoading(false)
+        }
+        fetchData()
+
     }, []);
 
-    // Move carousel when focusedIndex changes
-    useEffect(() => {
-        if (movieRefs.current[focusedIndex] && carouselRef.current) {
-            const focusedElement = movieRefs.current[focusedIndex];
-            const carousel = carouselRef.current;
+    
 
+    useEffect(() => {
+        const focusedElement = movieRefs.current[`${focusedRowIndex}-${focusedColIndex}`];
+        const carousel = carouselsRef.current[focusedRowIndex];
+
+        if (focusedElement && carousel) {
             const rect = focusedElement.getBoundingClientRect();
             const containerRect = carousel.getBoundingClientRect();
 
@@ -45,45 +58,53 @@ const Home = () => {
                 carousel.scrollBy({ left: rect.left - containerRect.left - 20, behavior: "smooth" });
             }
         }
-    }, [focusedIndex]);
+    }, [focusedRowIndex, focusedColIndex]);
+
 
     // Keyboard navigation
+
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === "ArrowRight") {
-                setFocusedIndex((prev) => Math.min(prev + 1, movies.length - 1));
+                setFocusedColIndex((prev) => Math.min(prev + 1, moviesData[categories[focusedRowIndex]?.key]?.length - 1));
             } else if (e.key === "ArrowLeft") {
-                setFocusedIndex((prev) => Math.max(prev - 1, 0));
-            } else if (e.key === "Enter") {
-                navigate(`/series/${movies[focusedIndex]?.id}`);
-            } else if (e.key === "Escape") {
-                console.log("Open Menu");
+                setFocusedColIndex((prev) => Math.max(prev - 1, 0));
+            } else if (e.key === "ArrowDown") {
+                setFocusedRowIndex((prev) => Math.min(prev + 1, categories.length - 1));
+                setFocusedColIndex(0);
+            } else if (e.key === "ArrowUp") {
+                setFocusedRowIndex((prev) => Math.max(prev - 1, 0));
+                setFocusedColIndex(0);
             }
         };
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [movies, focusedIndex, navigate]);
+    }, [moviesData, focusedRowIndex, focusedColIndex]);
+
 
     return (
         <div className={`content ${menuOpen ? "content-minimized" : "content-expanded"}`}>
-            <h2>{categoryName}</h2>
-
             {loading ? (
-                <div className="loading">Loading movies...</div>
+                <div className="loading">Loading movies and tv shows...</div>
             ) : (
-                <div className="carousel" ref={carouselRef}>
-                    {movies.map((movie, index) => (
-                        <div
-                            key={movie.id}
-                            className={`movie-card ${focusedIndex === index ? "focused" : ""}`}
-                            ref={(el) => (movieRefs.current[index] = el)}
-                        >
-                            <img src={`${IMAGE_BASE_URL}${movie.poster_path}`} alt={movie.title} />
-                            <p>{movie.title}</p>
+                categories.map((category, rowIndex) => (
+                    <div key={category.key} className="playlist">
+                        <h2>{category.name}</h2>
+                        <div className="carousel" ref={(el) => (carouselsRef.current[rowIndex] = el)}>
+                            {moviesData[category.key]?.map((movie, colIndex) => (
+                                <div
+                                    key={movie.id}
+                                    className={`movie-card ${category.type === "tv" ? "horizontal" : "poster"} ${focusedRowIndex === rowIndex && focusedColIndex === colIndex ? "focused" : ""}`}
+                                    ref={(el) => (movieRefs.current[`${rowIndex}-${colIndex}`] = el)}
+                                >
+                                    <img src={`${IMAGE_BASE_URL}${movie.poster_path}`} alt={movie.title || movie.name} />
+                                    <p>{movie.title || movie.name}</p>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </div>
+                ))
             )}
         </div>
     );

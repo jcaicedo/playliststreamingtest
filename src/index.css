@@ -57,8 +57,6 @@ body {
 }
 
 
-
-
 /* Animation toggle button */
 
 .menu-toggle {
@@ -118,28 +116,50 @@ body {
 }
 
 /*  Cards */
-.movie-card {
+.movie-card.poster {
   flex: 0 0 auto;
   width: 200px;
   height: 300px;
   background: #222;
   color: white;
   padding: 10px;
-  border-radius: 12px;
+  border-radius: 10px;
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.movie-card img {
+.movie-card.poster img {
   width: 100%;
-  height: 270px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.movie-card.horizontal {
+  flex: 0 0 auto;
+  width: 320px;
+  height: 180px;
+  display: flex;
+  background: #222;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: left;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  align-items: center;
+  gap: 10px;
+}
+
+.movie-card.horizontal img {
+  width: 40%;
+  height: 100%;
   object-fit: cover;
   border-radius: 8px;
 }
 
 /* Focus */
 .movie-card.focused {
-  /* transform: scale(1.1); */
+  transform: scale(1.15);
   box-shadow: 0px 6px 12px rgba(255, 0, 0, 0.7);
   border: 3px solid #ff0000;
   outline: none;
