@@ -1,0 +1,93 @@
+/* Content */
+.content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #141414;
+    color: white;
+    transition: margin-left 0.4s ease-in-out;
+  }
+  
+  .content-expanded {
+    margin-left: 100px;
+  }
+  
+  .content-minimized {
+    margin-left: 80px;
+  }
+  
+  /* Loading */
+  .loading {
+    text-align: center;
+    font-size: 18px;
+    color: #fff;
+    margin-top: 50px;
+  }
+  
+  /* Seasons Carousel */
+  .carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding-bottom: 10px;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+  
+  .carousel::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /*  Card Seasons */
+  .season-card {
+    flex: 0 0 auto;
+    width: 150px;
+    background: #222;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .season-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  
+  /* Episodes List */
+  .episode-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .episode-card {
+    display: flex;
+    background: #222;
+    border-radius: 10px;
+    padding: 10px;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.3s ease;
+  }
+  
+  .episode-card img {
+    width: 120px;
+    border-radius: 8px;
+  }
+  
+  /* Focus */
+  .season-card.focused,
+  .episode-card.focused {
+    transform: scale(1.1);
+    box-shadow: 0px 6px 12px rgba(255, 0, 0, 0.7);
+    border: 3px solid #ff0000;
+    outline: none;
+  }
+  
